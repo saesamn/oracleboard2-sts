@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.dao.BoardDao">
+	
+	<!-- 글작성 -->
+	<insert id="insert" parameterType="board">
+		insert into myboard2 values(myboard2_seq.nextval,#{writer},#{passwd},
+		#{subject},#{content},0,sysdate)
+	</insert>
+	
+	<!-- 글갯수 -->
+	<select id="count" parameterType="board" resultType="int">
+		select count(*) from myboard2
+			<where>
+				<if test="search != null and keyword != null">
+				    ${search}  like  '%'||#{keyword}||'%'
+				</if>
+			</where>
+	</select>	
+	
+	<!-- 글목록 -->
+	<select id="list" parameterType="board" resultType="board">
+		select * from ( select rownum rnum, board.* from (
+		select * from myboard2 
+			
+			<where>
+				<if test="search != null and keyword != null">
+				    ${search}  like  '%'||#{keyword}||'%'
+				</if>
+			</where>
+		
+		order by no desc) board )
+		where rnum between #{startRow} and #{endRow}
+	</select>
+	
+	<!-- 조회수 1증가 -->
+	<update id="updatecount" parameterType="int">
+	    update myboard2 set readcount=readcount+1 where no=#{no}
+	</update>
+	
+	<!-- 상세 정보 구하기 -->
+	<select id="content" parameterType="int" resultType="board">
+	   select * from myboard2 where no=#{no}
+	</select>
+	
+	<!-- 글수정 -->
+	<update id="update" parameterType="board">
+	   update myboard2 set writer=#{writer}, subject=#{subject}, content=#{content},
+	   register=sysdate where no=#{no}
+	</update>
+	
+	<!-- 글삭제 -->
+	<delete id="delete" parameterType="int">
+	   delete from myboard2 where no=#{no}
+	</delete>
+		
+</mapper>
+
+
+
